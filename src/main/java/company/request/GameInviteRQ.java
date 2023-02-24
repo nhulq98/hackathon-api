@@ -9,6 +9,7 @@ public class GameInviteRQ {
     public List<ShipRQ> ships;
 
     public GameInviteRQ(){
+        ships = new ArrayList<>();
 //        this.boardWidth = 20;
 //        this.boardHeight = 8;
 //
