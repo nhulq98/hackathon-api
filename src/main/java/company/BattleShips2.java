@@ -270,10 +270,7 @@ public class BattleShips2 extends ShipAbstract {
             if(shipType.equals("CA")){
                 sizeCondition = 3;
             }
-            if(shipType.equals("BB")){
-                sizeCondition = 4;
-            }
-            if(shipType.equals("OR")){
+            if(shipType.equals("BB") || shipType.equals("OR")){
                 sizeCondition = 4;
             }
             if(shipType.equals("CV")){

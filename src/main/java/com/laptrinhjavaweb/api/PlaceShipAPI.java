@@ -1,5 +1,6 @@
 package com.laptrinhjavaweb.api;
 
+import company.BattleShips2;
 import company.request.GameInviteRQ;
 import company.response.GameStartRS;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,7 @@ public class PlaceShipAPI {
 
         try{
             GameStartRS gameStartRS = placeShips(gameInviteRQ);
+//            BattleShips2.deployPlayerShips(gameStartRS);
             return gameStartRS;
 
         }catch (Exception e){
