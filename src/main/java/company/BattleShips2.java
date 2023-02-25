@@ -18,6 +18,196 @@ public class BattleShips2 extends ShipAbstract {
     public static String[][] grid = new String[numRows][numCols];
     public static List<List<Coordinate>> occupied = new ArrayList<>();
 
+    public static GameStartRS placeShips(GameInviteRQ ships){
+        occupied = new ArrayList<>();
+        GameStartRS response = new GameStartRS();
+
+        // đem các tàu dễ ra bỏ vào đầu mảng để sắp trước
+        GameInviteRQ ships2 = new GameInviteRQ();
+        ships.ships.forEach(item ->{
+            if(item.type.equals("DD") || item.type.equals("CA") || item.type.equals("BB")){
+                ships2.ships.add(0, item);
+            }else{
+                ships2.ships.add(item);
+            }
+        });
+
+        // Generate Coordinate
+        ships2.ships.forEach(item -> {
+
+            List<Coordinate> coordinates;
+            Destroyer destroyerInfo = new Destroyer();
+            Cruiser cruiserInfo = new Cruiser();
+            OilRig oilRigInfo = new OilRig();
+            BattleShip battleShipInfo = new BattleShip();
+            Carrier carrierInfo = new Carrier();
+
+            switch (item.type){
+                case "DD":{
+                    int lenOfShip = destroyerInfo.pieces;
+
+                    for(int i = 0; i < item.quantity; i++){
+                        DestroyerRS destroyerRS = new DestroyerRS();
+                        destroyerRS.coordinates = findCoordinateByShip(lenOfShip, item.type);
+
+                        //Step3: add Coordinate to resp
+                        response.ships.add(destroyerRS);
+
+                        //step4: add to occupied
+                        occupied.add(destroyerRS.coordinates);
+                    }
+                    break;
+                }
+
+                case "CA": {
+                    int lenOfShip = cruiserInfo.pieces;
+
+                    for(int i = 0; i < item.quantity; i++){
+                        CruiserRS cruiserRS = new CruiserRS();
+
+                        cruiserRS.coordinates = findCoordinateByShip(lenOfShip, item.type);
+
+                        //Step3: add Coordinate to resp
+                        response.ships.add(cruiserRS);
+
+                        //step4: add to occupied
+                        occupied.add(cruiserRS.coordinates);
+                    }
+
+                    break;
+                }
+
+                case "OR": {
+                    boolean reRandom;
+
+                    List<Coordinate> remainCoordinates;
+
+                    for(int z = 0; z < item.quantity; z++){
+
+                        remainCoordinates = new ArrayList<>();
+                        OilRigRS oilRigRS = new OilRigRS();
+                        String direction = HORIZON;// TÌm điểm tiếp theo. Khởi tạo là chiều ngang
+                        Coordinate rootFisrtCoordinate;
+                        Coordinate rootSecondCoordinate;
+
+                        do {
+                            reRandom = false;
+                            coordinates = new ArrayList<>();
+
+                            //Step1: Random find rootCoordinate
+                            rootFisrtCoordinate = findRootCoordinate();
+
+                            //Step2: find root second
+                            rootSecondCoordinate = findRootSecondForOR(rootFisrtCoordinate, direction);
+
+                            //Step3: Find all remain Coordinates
+                            if(rootSecondCoordinate == null){
+                                continue;
+                            }
+
+                            remainCoordinates = findAllCoordinateRemainForOR(rootFisrtCoordinate, rootSecondCoordinate, direction);
+
+                            if(remainCoordinates == null) {
+                                reRandom = true; // re find
+                            }
+
+                        }while(reRandom == true);
+
+                        coordinates.add(rootFisrtCoordinate);
+                        coordinates.add(rootSecondCoordinate);
+                        coordinates.addAll(remainCoordinates);
+
+                        oilRigRS.coordinates = coordinates;
+
+                        //Step3: add Coordinate to resp
+                        response.ships.add(oilRigRS);
+
+                        //step4: add to occupied
+                        occupied.add(oilRigRS.coordinates);
+                    }
+
+                    break;
+                }
+
+                case "BB":{
+                    // khởi tạo tàu chiến
+                    int lenOfShip = battleShipInfo.pieces;
+
+                    for(int i = 0; i < item.quantity; i++){
+                        BattleShipRS battleShipRS = new BattleShipRS();
+
+                        // get Coordinate
+                        battleShipRS.coordinates =  findCoordinateByShip(lenOfShip, item.type);
+
+                        //Step3: add Coordinate to resp
+                        response.ships.add(battleShipRS);
+
+                        //step4: add to occupied
+                        occupied.add(battleShipRS.coordinates);
+                    }
+                    break;
+                }
+
+                case "CV": {
+                    int lenOfShip = carrierInfo.pieces;
+
+                    for(int i = 0; i < item.quantity; i++){
+
+                        CarrierRS carrierRS = new CarrierRS();
+                        String direction = HORIZON;
+                        boolean reRandom = false;
+                        Coordinate rootCoordinate;
+                        List<Coordinate> threeCoordinates;
+                        Coordinate roofCoordinate = new Coordinate();
+
+                        do {
+                            coordinates = new ArrayList<>();
+
+                            // Step1: find root
+                            rootCoordinate = findRootCoordinate();
+
+                            // Step2: Tìm 3 điểm kế tiếp
+                            threeCoordinates = findThreeCoordinates(rootCoordinate, direction, lenOfShip);
+
+                            // Step Final: Find final coordinate
+                            if(threeCoordinates.size() == 3){
+                                roofCoordinate = findRoofCoordinate(threeCoordinates, direction);
+                                if(roofCoordinate == null){
+                                    reRandom = true;
+                                }
+                            }else{
+                                threeCoordinates = new ArrayList<>();
+                                reRandom = false;
+                            }
+
+                            if(reRandom == false){
+                                coordinates.add(rootCoordinate);
+                                coordinates.addAll(threeCoordinates);
+                                coordinates.add(roofCoordinate);
+                            }
+
+                        }while(coordinates.size() != 5);
+
+                        carrierRS.coordinates = coordinates;
+
+                        //Step3: add Coordinate to resp
+                        response.ships.add(carrierRS);
+
+                        //step4: add to occupied
+                        occupied.add(carrierRS.coordinates);
+                    }
+
+                    break;
+                }
+                default:
+            }
+
+        });
+
+        return response;
+    }
+
+
     public static int[][] missedGuesses = new int[numRows][numCols];
 
     public static Coordinate randomCoordinate(){
@@ -32,12 +222,11 @@ public class BattleShips2 extends ShipAbstract {
         return new Coordinate(xRand, yRand);
     }
 
-    public static List<Coordinate> findCoordinateByShip(int lenOfShip){
+    public static List<Coordinate> findCoordinateByShip(int lenOfShip, String shipType){
         List<Coordinate> coordinates;
         boolean turnAround = false; // Find coordinates finish
-        boolean isFindComplete = false; // Find coordinates finish
         Coordinate rootCoordinate;
-
+        int sizeCondition = 0;
         do {
             coordinates = new ArrayList<>();
 
@@ -73,9 +262,25 @@ public class BattleShips2 extends ShipAbstract {
                 }
             }
 
-        }while(coordinates.size() == 0);
+            coordinates.add(rootCoordinate);
 
-        coordinates.add(rootCoordinate);
+            if(shipType.equals("DD")){
+                sizeCondition = 2;
+            }
+            if(shipType.equals("CA")){
+                sizeCondition = 3;
+            }
+            if(shipType.equals("BB")){
+                sizeCondition = 4;
+            }
+            if(shipType.equals("OR")){
+                sizeCondition = 4;
+            }
+            if(shipType.equals("CV")){
+                sizeCondition = 5;
+            }
+
+        }while(coordinates.size() != sizeCondition);
 
         return coordinates;
     }
@@ -272,195 +477,6 @@ public class BattleShips2 extends ShipAbstract {
         return remainCoordinates;
     }
 
-    public static GameStartRS placeShips(GameInviteRQ ships){
-        occupied = new ArrayList<>();
-        GameStartRS response = new GameStartRS();
-
-        // đem các tàu dễ ra bỏ vào đầu mảng
-        GameInviteRQ ships2 = new GameInviteRQ();
-        ships.ships.forEach(item ->{
-            if(item.type.equals("DD") || item.type.equals("CA") || item.type.equals("BB")){
-                ships2.ships.add(0, item);
-            }else{
-                ships2.ships.add(item);
-            }
-        });
-
-        // Generate Coordinate
-        ships2.ships.forEach(item -> {
-
-            List<Coordinate> coordinates;
-            Destroyer destroyerInfo = new Destroyer();
-            Cruiser cruiserInfo = new Cruiser();
-            OilRig oilRigInfo = new OilRig();
-            BattleShip battleShipInfo = new BattleShip();
-            Carrier carrierInfo = new Carrier();
-
-            switch (item.type){
-                case "DD":{
-                    int lenOfShip = destroyerInfo.pieces;
-
-                    for(int i = 0; i < item.quantity; i++){
-                        DestroyerRS destroyerRS = new DestroyerRS();
-                        destroyerRS.coordinates = findCoordinateByShip(lenOfShip);
-
-                        //Step3: add Coordinate to resp
-                        response.ships.add(destroyerRS);
-
-                        //step4: add to occupied
-                        occupied.add(destroyerRS.coordinates);
-                    }
-                    break;
-                }
-
-                case "CA": {
-                    int lenOfShip = cruiserInfo.pieces;
-
-                    for(int i = 0; i < item.quantity; i++){
-                        CruiserRS cruiserRS = new CruiserRS();
-
-                        cruiserRS.coordinates = findCoordinateByShip(lenOfShip);
-
-                        //Step3: add Coordinate to resp
-                        response.ships.add(cruiserRS);
-
-                        //step4: add to occupied
-                        occupied.add(cruiserRS.coordinates);
-                    }
-
-                    break;
-                }
-
-                case "OR": {
-                    boolean reRandom;
-
-                    List<Coordinate> remainCoordinates;
-
-                    for(int z = 0; z < item.quantity; z++){
-
-                        remainCoordinates = new ArrayList<>();
-                        OilRigRS oilRigRS = new OilRigRS();
-                        String direction = HORIZON;// TÌm điểm tiếp theo. Khởi tạo là chiều ngang
-                        Coordinate rootFisrtCoordinate;
-                        Coordinate rootSecondCoordinate;
-
-                        do {
-                            reRandom = false;
-                            coordinates = new ArrayList<>();
-
-                            //Step1: Random find rootCoordinate
-                            rootFisrtCoordinate = findRootCoordinate();
-
-                            //Step2: find root second
-                            rootSecondCoordinate = findRootSecondForOR(rootFisrtCoordinate, direction);
-
-                            //Step3: Find all remain Coordinates
-                            if(rootSecondCoordinate == null){
-                                continue;
-                            }
-
-                            remainCoordinates = findAllCoordinateRemainForOR(rootFisrtCoordinate, rootSecondCoordinate, direction);
-
-                            if(remainCoordinates == null) {
-                                reRandom = true; // re find
-                            }
-
-                        }while(reRandom == true);
-
-                        coordinates.add(rootFisrtCoordinate);
-                        coordinates.add(rootSecondCoordinate);
-                        coordinates.addAll(remainCoordinates);
-
-                        oilRigRS.coordinates = coordinates;
-
-                        //Step3: add Coordinate to resp
-                        response.ships.add(oilRigRS);
-
-                        //step4: add to occupied
-                        occupied.add(oilRigRS.coordinates);
-                    }
-
-                    break;
-                }
-
-                case "BB":{
-                    // khởi tạo tàu chiến
-                    int lenOfShip = battleShipInfo.pieces;
-
-                    for(int i = 0; i < item.quantity; i++){
-                        BattleShipRS battleShipRS = new BattleShipRS();
-
-                        // get Coordinate
-                        battleShipRS.coordinates =  findCoordinateByShip(lenOfShip);;
-
-                        //Step3: add Coordinate to resp
-                        response.ships.add(battleShipRS);
-
-                        //step4: add to occupied
-                        occupied.add(battleShipRS.coordinates);
-                    }
-                    break;
-                }
-
-                case "CV": {
-                    int lenOfShip = carrierInfo.pieces;
-
-                    for(int i = 0; i < item.quantity; i++){
-
-                        CarrierRS carrierRS = new CarrierRS();
-                        String direction = HORIZON;
-                        boolean reRandom = false;
-                        Coordinate rootCoordinate;
-                        List<Coordinate> threeCoordinates;
-                        Coordinate roofCoordinate = new Coordinate();
-
-                        do {
-                            coordinates = new ArrayList<>();
-
-                            // Step1: find root
-                            rootCoordinate = findRootCoordinate();
-
-                            // Step2: Tìm 3 điểm kế tiếp
-                            threeCoordinates = findThreeCoordinates(rootCoordinate, direction, lenOfShip);
-
-                            // Step Final: Find final coordinate
-                            if(threeCoordinates.size() == 3){
-                                roofCoordinate = findRoofCoordinate(threeCoordinates, direction);
-                                if(roofCoordinate == null){
-                                    reRandom = true;
-                                }
-                            }else{
-                                threeCoordinates = new ArrayList<>();
-                                reRandom = false;
-                            }
-
-                            if(reRandom == false){
-                                coordinates.add(rootCoordinate);
-                                coordinates.addAll(threeCoordinates);
-                                coordinates.add(roofCoordinate);
-                            }
-
-                        }while(coordinates.size() != 5);
-
-                        carrierRS.coordinates = coordinates;
-
-                        //Step3: add Coordinate to resp
-                        response.ships.add(carrierRS);
-
-                        //step4: add to occupied
-                        occupied.add(carrierRS.coordinates);
-                    }
-
-                    break;
-                }
-                default:
-            }
-
-        });
-
-        return response;
-    }
-
     public static void createOceanMap(){
         //First section of Ocean Map
         System.out.print("  ");
@@ -557,40 +573,6 @@ public class BattleShips2 extends ShipAbstract {
         }
         printOceanMap();
     }
-
-//    public static void deployComputerShips(){
-//        System.out.println("\nComputer is deploying ships");
-//        //Deploying five ships for computer
-//        BattleShips.computerShips = 5;
-//        for (int i = 1; i <= BattleShips.computerShips; ) {
-//            int x = (int)(Math.random() * 10);
-//            int y = (int)(Math.random() * 10);
-//
-//            if((x >= 0 && x < numRows) && (y >= 0 && y < numCols) && (grid[x][y] == " "))
-//            {
-//                grid[x][y] =   "x";
-//                System.out.println(i + ". ship DEPLOYED");
-//                i++;
-//            }
-//        }
-//        printOceanMap();
-//    }
-
-//    public static void Battle(){
-//        printOceanMap();
-//
-//        System.out.println();
-//        System.out.println("Your ships: " + BattleShips.playerShips + " | Computer ships: " + BattleShips.computerShips);
-//        System.out.println();
-//    }
-//    public static void gameOver(){
-//        System.out.println("Your ships: " + BattleShips.playerShips + " | Computer ships: " + BattleShips.computerShips);
-//        if(BattleShips.playerShips > 0 && BattleShips.computerShips <= 0)
-//            System.out.println("Hooray! You won the battle :)");
-//        else
-//            System.out.println("Sorry, you lost the battle");
-//        System.out.println();
-//    }
 
     public static void printOceanMap(){
         System.out.println();
