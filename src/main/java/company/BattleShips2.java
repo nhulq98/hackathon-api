@@ -107,7 +107,7 @@ public class BattleShips2 extends ShipAbstract {
 
                             remainCoordinates = findAllCoordinateRemainForOR(rootFisrtCoordinate, rootSecondCoordinate, direction);
 
-                            if(remainCoordinates == null) {
+                            if(remainCoordinates == null || remainCoordinates.size()==1) {
                                 reRandom = true; // re find
                             }
 
@@ -327,50 +327,23 @@ public class BattleShips2 extends ShipAbstract {
     }
 
     public static Coordinate findRoofCoordinate(List<Coordinate> threeCoordinates, String direction){
-        Coordinate coordinate = Optional.ofNullable(threeCoordinates.get(1)).orElseThrow(()-> new NullPointerException("Find roof of CA battleship failed"));
-        boolean turnAround = false;
-        if(direction.equals(HORIZON)){
-            int x = coordinate.x;
-            int y = coordinate.y + 1;
+        Coordinate coordinate_0 = Optional.ofNullable(threeCoordinates.get(0)).orElseThrow(()-> new NullPointerException("Find roof of CA battleship failed"));
+        Coordinate coordinate_1 = Optional.ofNullable(threeCoordinates.get(1)).orElseThrow(()-> new NullPointerException("Find roof of CA battleship failed"));
+        String direction_x = (coordinate_0.y == coordinate_1.y) ? HORIZON : VERTICAL;
+        if(direction_x.equals(HORIZON)){
+            int x = coordinate_0.x;
+            int y = coordinate_0.y - 1;
             if(isCoordinateValid(x, y)){
                 return new Coordinate(x, y);
-            }else{
-                turnAround = true;
-            }
-
-            if(turnAround == true){
-                int x1 = coordinate.x;
-                int y1 = coordinate.y - 1;
-                if(isCoordinateValid(x1, y1)){
-                    return new Coordinate(x1, y1);
-
-                }else{
-                    turnAround = false; // reset
-                    direction = VERTICAL;
-                }
             }
         }
-
-
-        if(direction.equals(VERTICAL)){
-            int x = coordinate.x + 1;
-            int y = coordinate.y;
+        if(direction_x.equals(VERTICAL)){
+            int x = coordinate_0.x - 1;
+            int y = coordinate_0.y;
             if(isCoordinateValid(x, y)){
                 return new Coordinate(x, y);
-
-            }else{
-                turnAround = true;
-            }
-
-            if(turnAround == true){
-                int x1 = coordinate.x - 1;
-                int y1 = coordinate.y;
-                if(isCoordinateValid(x1, y1)){
-                    return new Coordinate(x1, y1);
-                }
             }
         }
-
         return null;
     }
 
@@ -407,9 +380,9 @@ public class BattleShips2 extends ShipAbstract {
         rootCoordinates.add(rootSecondCoordinate);
 
         List<Coordinate> remainCoordinates = new ArrayList<>();
-
+        String direction_x = rootFirstCoordinate.x == rootSecondCoordinate.x ? VERTICAL : HORIZON;
         // Find continue
-        if(direction.equals(HORIZON)){
+        if(direction_x.equals(HORIZON)){
             for(int i = 0; i < rootCoordinates.size(); i++){
                 Coordinate coordinate = rootCoordinates.get(i);
                 if(turnAround == false){
@@ -439,7 +412,7 @@ public class BattleShips2 extends ShipAbstract {
             }
         }
 
-        if(direction.equals(VERTICAL)) { // VERTICAL
+        if(direction_x.equals(VERTICAL)) { // VERTICAL
             for(int i = 0; i < rootCoordinates.size(); i++){
                 Coordinate coordinate = rootCoordinates.get(i);
                 int x = coordinate.x + 1;
@@ -470,8 +443,12 @@ public class BattleShips2 extends ShipAbstract {
         if(remainCoordinates.size() != 2){
             return null;
         }
+        boolean check = true;
+        if(remainCoordinates.get(0).x == remainCoordinates.get(1).x && remainCoordinates.get(0).y == remainCoordinates.get(1).y){
+            check = false;
+        }
 
-        return remainCoordinates;
+        return check ? remainCoordinates : null;
     }
 
     public static void createOceanMap(){
