@@ -18,7 +18,17 @@ public class BattleShips2 extends ShipAbstract {
     public static String[][] grid = new String[numRows][numCols];
     public static List<List<Coordinate>> occupied = new ArrayList<>();
 
+    public static List<Coordinate> border = new ArrayList<>();
+
+
     public static GameStartRS placeShips(GameInviteRQ ships){
+        for(int x = 0; x < 20; x++){
+            for (int y = 0; y < 8; y++) {
+                if(x==0 || x==19 || y == 0 || y == 7){
+                    border.add(new Coordinate(x,y));
+                }
+            }
+        }
         occupied = new ArrayList<>();
         GameStartRS response = new GameStartRS();
 
@@ -89,8 +99,10 @@ public class BattleShips2 extends ShipAbstract {
                         String direction = HORIZON;// TÌm điểm tiếp theo. Khởi tạo là chiều ngang
                         Coordinate rootFisrtCoordinate;
                         Coordinate rootSecondCoordinate;
+                        int countLoop = 0;
 
                         do {
+                            countLoop++;
                             reRandom = false;
                             coordinates = new ArrayList<>();
 
@@ -110,6 +122,18 @@ public class BattleShips2 extends ShipAbstract {
                             if(remainCoordinates == null || remainCoordinates.size()==1) {
                                 reRandom = true; // re find
                             }
+
+                            if(rootFisrtCoordinate != null && rootSecondCoordinate != null && remainCoordinates != null && remainCoordinates.size() == 2){
+                                List<Coordinate> orCoordinates = new ArrayList<>();
+                                orCoordinates.add(rootFisrtCoordinate);
+                                orCoordinates.add(rootSecondCoordinate);
+                                orCoordinates.addAll(remainCoordinates);
+
+                                if(is_near_other_ship(orCoordinates,countLoop)) {
+                                    reRandom = true;
+                                }
+                            }
+
 
                         }while(reRandom == true);
 
@@ -159,8 +183,9 @@ public class BattleShips2 extends ShipAbstract {
                         Coordinate rootCoordinate;
                         List<Coordinate> threeCoordinates;
                         Coordinate roofCoordinate = new Coordinate();
-
+                        int countLoop = 0;
                         do {
+                            countLoop++;
                             coordinates = new ArrayList<>();
 
                             // Step1: find root
@@ -186,7 +211,7 @@ public class BattleShips2 extends ShipAbstract {
                                 coordinates.add(roofCoordinate);
                             }
 
-                        }while(coordinates.size() != 5);
+                        }while(coordinates.size() != 5 || is_near_other_ship(coordinates,countLoop));
 
                         carrierRS.coordinates = coordinates;
 
@@ -211,7 +236,9 @@ public class BattleShips2 extends ShipAbstract {
     public static int[][] missedGuesses = new int[numRows][numCols];
 
     public static Coordinate randomCoordinate(){
-        int xMin = 0, xMax = 19, yMin = 0, yMax = 7;
+        int xMin = 1, xMax = 18, yMin = 1, yMax = 6;
+//        int xMin = 0, xMax = 19, yMin = 0, yMax = 7;
+
         int xRand = 0;
         int yRand = 0;
         do{
@@ -227,7 +254,9 @@ public class BattleShips2 extends ShipAbstract {
         boolean turnAround = false; // Find coordinates finish
         Coordinate rootCoordinate;
         int sizeCondition = 0;
+        int countLoop = 0;
         do {
+            countLoop++;
             coordinates = new ArrayList<>();
 
             //Step1: Random
@@ -277,7 +306,7 @@ public class BattleShips2 extends ShipAbstract {
                 sizeCondition = 5;
             }
 
-        }while(coordinates.size() != sizeCondition);
+        }while(coordinates.size() != sizeCondition || is_near_other_ship(coordinates, countLoop));
 
         return coordinates;
     }
@@ -508,8 +537,62 @@ public class BattleShips2 extends ShipAbstract {
         return false;
     }
 
-    public static boolean get_near_positions(int x, int y){
-        return true;
+    public static Boolean is_near_other_ship(List<Coordinate> coordinates, int countLoop){
+        if(countLoop > 100) return false;
+        List<Coordinate> coordinatesOfCurrentShips = new ArrayList<>();
+        List<Coordinate> listCoordinateNearBy = new ArrayList<>();
+
+
+        for(int i = 0; i < occupied.size(); i++){
+            List<Coordinate> other_ship_coordinates = occupied.get(i);
+            for (int j = 0; j < other_ship_coordinates.size(); j++) {
+                coordinatesOfCurrentShips.add(other_ship_coordinates.get(j));
+            }
+        }
+
+        for (Coordinate coordinate: coordinates) {
+            if(coordinate!=null){
+                listCoordinateNearBy.addAll(get_near_positions(coordinate));
+            }
+        }
+
+//        for (Coordinate c1: border) {
+//            for (Coordinate c2: coordinates) {
+//                System.out.println("You can't place this ship in border -> (" + c2.x + "," + c2.y + ")");
+//                if(c1.x == c2.x && c1.y == c2.y) return true;
+//            }
+//        }
+
+        for (Coordinate c1: coordinatesOfCurrentShips) {
+            for (Coordinate c2: listCoordinateNearBy) {
+                System.out.println("You can't place this ship near other ship (x,y) -> (" + c2.x + "," + c2.y + ")");
+                if(c1.x == c2.x && c1.y == c2.y) return true;
+            }
+        }
+
+        return false;
+    }
+
+    public static List<Coordinate> get_near_positions(Coordinate coordinate){
+        List<Coordinate> listCoordinateNearBy = new ArrayList<>();
+
+        int x = coordinate.x;
+        int y = coordinate.y;
+
+        if(!is_outside_board(x,y+1)){
+            listCoordinateNearBy.add(new Coordinate(x,y+1)); // up
+        }
+        if(!is_outside_board(x,y-1)){
+            listCoordinateNearBy.add(new Coordinate(x,y-1)); // down
+        }
+        if(!is_outside_board(x+1,y)){
+            listCoordinateNearBy.add(new Coordinate(x+1,y)); // right
+        }
+        if(!is_outside_board(x-1,y)){
+            listCoordinateNearBy.add(new Coordinate(x-1,y)); // left
+        }
+
+        return listCoordinateNearBy;
     }
 
 
