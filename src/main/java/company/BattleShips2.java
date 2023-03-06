@@ -1,5 +1,6 @@
 package company;
 
+import com.laptrinhjavaweb.util.ToaDoChoTruocDD;
 import company.dto.*;
 import company.request.GameInviteRQ;
 import company.response.*;
@@ -54,18 +55,31 @@ public class BattleShips2 extends ShipAbstract {
 
             switch (item.type){
                 case "DD":{
-                    int lenOfShip = destroyerInfo.pieces;
+//                    int lenOfShip = destroyerInfo.pieces;
+//
+//                    for(int i = 0; i < item.quantity; i++){
+//                        DestroyerRS destroyerRS = new DestroyerRS();
+//                        destroyerRS.coordinates = findCoordinateByShip(lenOfShip, item.type);
+//
+//                        //Step3: add Coordinate to resp
+//                        response.ships.add(destroyerRS);
+//
+//                        //step4: add to occupied
+//                        occupied.add(destroyerRS.coordinates);
+//                    }
 
-                    for(int i = 0; i < item.quantity; i++){
-                        DestroyerRS destroyerRS = new DestroyerRS();
-                        destroyerRS.coordinates = findCoordinateByShip(lenOfShip, item.type);
+                    // Xếp tay
+                    DestroyerRS destroyerRS = new DestroyerRS();
+                    destroyerRS.coordinates = ToaDoChoTruocDD.Hor_toaDoGocDuoiBenTrai_KoSatBien();
+//                    destroyerRS.coordinates = ToaDoChoTruocDD.Hor_toaDoGocDuoiBenTrai_SatBien();
+//                    destroyerRS.coordinates = ToaDoChoTruocDD.Ver_toaDoGocDuoiBenTrai_KoSatBien();
+//                    destroyerRS.coordinates = ToaDoChoTruocDD.Ver_toaDoGocDuoiBenTrai_SatBien();
 
-                        //Step3: add Coordinate to resp
-                        response.ships.add(destroyerRS);
+                    //Step3: add Coordinate to resp
+                    response.ships.add(destroyerRS);
 
-                        //step4: add to occupied
-                        occupied.add(destroyerRS.coordinates);
-                    }
+                    //step4: add to occupied
+                    occupied.add(destroyerRS.coordinates);
                     break;
                 }
 
