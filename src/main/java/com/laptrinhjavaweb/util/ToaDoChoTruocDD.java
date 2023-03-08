@@ -43,28 +43,18 @@ public class ToaDoChoTruocDD {
     public static List<List<Coordinate>> ListToaDoChoTruocDD(){
         List<List<Coordinate>> dsToaDo = new ArrayList<>();
 
-        dsToaDo.add(Hor_toaDoGocDuoiBenTrai_KoSatBien());
-        dsToaDo.add(Ver_toaDoGocDuoiBenTrai_KoSatBien());
-
         dsToaDo.add(Hor_toaDoGocDuoiBenPhai_KoSatBien());
         dsToaDo.add(Ver_toaDoGocDuoiBenPhai_KoSatBien());
 
+        dsToaDo.add(Hor_toaDoGocDuoiBenTrai_KoSatBien());
+        dsToaDo.add(Ver_toaDoGocDuoiBenTrai_KoSatBien());
 
-        dsToaDo.add(Hor_toaDoGocDuoiBenTrai_SatBien());
-        dsToaDo.add(Ver_toaDoGocDuoiBenTrai_SatBien());
-
-        dsToaDo.add(Hor_toaDoGocDuoiBenPhai_SatBien());
-        dsToaDo.add(Ver_toaDoGocDuoiBenPhai_SatBien());
+//        dsToaDo.add(Hor_toaDoGocDuoiBenTrai_SatBien());
+//        dsToaDo.add(Ver_toaDoGocDuoiBenTrai_SatBien());
+//
+//        dsToaDo.add(Hor_toaDoGocDuoiBenPhai_SatBien());
+//        dsToaDo.add(Ver_toaDoGocDuoiBenPhai_SatBien());
 
         return dsToaDo;
     }
-
-    public static Coordinate toaDoGocDuoiBenPhai_DD1 = new Coordinate(18, 0);
-    public static Coordinate toaDoGocDuoiBenPhai_DD2 = new Coordinate(17, 0);
-
-    public static Coordinate toaDoGocTrenBenPhai_DD1 = new Coordinate(18, 7);
-    public static Coordinate toaDoGocTrenBenPhai_DD2 = new Coordinate(17, 7);
-
-    public static Coordinate toaDoGocTrenBenTrai_DD1 = new Coordinate(0, 5);
-    public static Coordinate toaDoGocTrenBenTrai_DD2 = new Coordinate(0, 5);
 }

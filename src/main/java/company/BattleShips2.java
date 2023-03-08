@@ -1,5 +1,6 @@
 package company;
 
+import com.laptrinhjavaweb.util.ToaDoChoTruocCA;
 import com.laptrinhjavaweb.util.ToaDoChoTruocDD;
 import company.dto.*;
 import company.request.GameInviteRQ;
@@ -85,12 +86,25 @@ public class BattleShips2 extends ShipAbstract {
                 }
 
                 case "CA": {
-                    int lenOfShip = cruiserInfo.pieces;
+//                    int lenOfShip = cruiserInfo.pieces;
 
-                    for(int i = 0; i < item.quantity; i++){
+//                    for(int i = 0; i < item.quantity; i++){
+//                        CruiserRS cruiserRS = new CruiserRS();
+//
+//                        cruiserRS.coordinates = findCoordinateByShip(lenOfShip, item.type);
+//
+//                        //Step3: add Coordinate to resp
+//                        response.ships.add(cruiserRS);
+//
+//                        //step4: add to occupied
+//                        occupied.add(cruiserRS.coordinates);
+//                    }
+
+                    // Xếp tay chien thuat
+                    for(int i = 0; i < item.quantity; i++ ){
                         CruiserRS cruiserRS = new CruiserRS();
 
-                        cruiserRS.coordinates = findCoordinateByShip(lenOfShip, item.type);
+                        cruiserRS.coordinates = ToaDoChoTruocCA.ListToaDoChoTruocCA().get(i);
 
                         //Step3: add Coordinate to resp
                         response.ships.add(cruiserRS);
