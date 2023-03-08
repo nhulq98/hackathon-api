@@ -40,20 +40,36 @@ public class ToaDoChoTruocDD {
         return Stream.of(new Coordinate(19, 1), new Coordinate(19, 2)).collect(Collectors.toList());
     }
 
+    public static List<Coordinate> Hor_toaDoGocTrenBenPhai_KoSatBien(){
+        return Stream.of(new Coordinate(17, 6), new Coordinate(18, 6)).collect(Collectors.toList());
+    }
+
+    public static List<Coordinate> Ver_toaDoGocTrenBenPhai_KoSatBien(){
+        return Stream.of(new Coordinate(18, 6), new Coordinate(18, 5)).collect(Collectors.toList());
+    }
+
+    public static List<Coordinate> Hor_toaDoGocTrenBenPhai_SatBien(){
+        return Stream.of(new Coordinate(18, 6), new Coordinate(19, 6)).collect(Collectors.toList());
+    }
+
+    public static List<Coordinate> Ver_toaDoGocTrenBenPhai_SatBien(){
+        return Stream.of(new Coordinate(18, 7), new Coordinate(18, 6)).collect(Collectors.toList());
+    }
+
     public static List<List<Coordinate>> ListToaDoChoTruocDD(){
         List<List<Coordinate>> dsToaDo = new ArrayList<>();
 
-        dsToaDo.add(Hor_toaDoGocDuoiBenPhai_KoSatBien());
-        dsToaDo.add(Ver_toaDoGocDuoiBenPhai_KoSatBien());
+        //ct 1
+        dsToaDo.add(Ver_toaDoGocTrenBenPhai_KoSatBien());
+        dsToaDo.add(Ver_toaDoGocDuoiBenTrai_SatBien());
 
-        dsToaDo.add(Hor_toaDoGocDuoiBenTrai_KoSatBien());
-        dsToaDo.add(Ver_toaDoGocDuoiBenTrai_KoSatBien());
-
+        //ct2
+//        dsToaDo.add(Hor_toaDoGocTrenBenPhai_KoSatBien());
 //        dsToaDo.add(Hor_toaDoGocDuoiBenTrai_SatBien());
+
+        //ct3
 //        dsToaDo.add(Ver_toaDoGocDuoiBenTrai_SatBien());
-//
 //        dsToaDo.add(Hor_toaDoGocDuoiBenPhai_SatBien());
-//        dsToaDo.add(Ver_toaDoGocDuoiBenPhai_SatBien());
 
         return dsToaDo;
     }
