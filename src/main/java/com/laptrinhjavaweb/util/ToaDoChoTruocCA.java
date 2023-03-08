@@ -14,7 +14,7 @@ public class ToaDoChoTruocCA {
     }
 
     public static List<Coordinate> Ver_toaDoGocDuoiBenTrai_SatBien(){
-        return Stream.of(new Coordinate(0, 1), new Coordinate(0, 2), new Coordinate(0, 2)).collect(Collectors.toList());
+        return Stream.of(new Coordinate(0, 1), new Coordinate(0, 2), new Coordinate(0, 3)).collect(Collectors.toList());
     }
 
     public static List<Coordinate> Hor_toaDoGocDuoiBenPhai_SatBien(){
